@@ -151,6 +151,12 @@ class PrinterStepperEnable:
             return
         stepper_enable = gcmd.get_int('ENABLE', 1)
         self.motor_debug_enable(stepper_name, stepper_enable)
+        # inform listeners the stepper is turned off so the homing state is updated
+        if stepper_enable == 0:
+            toolhead = self.printer.lookup_object('toolhead')
+            print_time = toolhead.get_last_move_time()
+            self.printer.send_event("stepper_enable:motor_off", {"print_time": print_time, "stepper_name": stepper_name})
+        
     def lookup_enable(self, name):
         if name not in self.enable_lines:
             raise self.printer.config_error("Unknown stepper '%s'" % (name,))
