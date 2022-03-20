@@ -62,8 +62,24 @@ class CoreXYKinematics:
                 forcepos[axis] += 1.5 * (position_max - hi.position_endstop)
             # Perform homing
             homing_state.home_rails([rail], forcepos, homepos)
-    def _motor_off(self, print_time):
-        self.limits = [(1.0, -1.0)] * 3
+            
+    def _motor_off(self, data):
+        logging.debug("RECIEVING EVENT stepper_enable:motor_off: %s" % data)
+        # default homing reset
+        if not 'stepper_name' in data:
+            self.limits = [(1.0, -1.0)] * 3
+            logging.info("Cleared homing state of axes: x y z")
+        # specified homing reset 
+        else:
+            stepper_name = data.get("stepper_name")
+            if stepper_name.startswith("stepper_x") or stepper_name.startswith("stepper_y"): #x=a, y=b
+                self.limits[0] = (1.0, -1.0) # reset homing state X
+                self.limits[1] = (1.0, -1.0) # reset homing state Y
+                logging.debug("Cleared homing state of axes: x y")
+            elif stepper_name.startswith("stepper_z"):
+                self.limits[2] = (1.0, -1.0) # reset homing state Z
+                logging.debug("Cleared homing state of axes: z")
+        
     def _check_endstops(self, move):
         end_pos = move.end_pos
         for i in (0, 1, 2):
