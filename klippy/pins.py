@@ -40,10 +40,11 @@ class PinResolver:
         def pin_fixup(m):
             name = m.group('name')
             pin_id = self.aliases.get(name, name)
-            if (name != self.active_pins.setdefault(pin_id, name)
-                and self.validate_aliases):
-                raise error("pin %s is an alias for %s" % (
-                    name, self.active_pins[pin_id]))
+            # ALLOW USEAGE OF ALIAS PIN SO IT CAN BE BOUND FOR EXAMPLE TO A GCODE BUTTON WITHOUT HAVING TO OVERRIDE THE DEFAULT BEHAVIOR
+            #if (name != self.active_pins.setdefault(pin_id, name)
+            #    and self.validate_aliases):
+            #    raise error("pin %s is an alias for %s" % (
+            #        name, self.active_pins[pin_id]))
             if pin_id in self.reserved:
                 raise error("pin %s is reserved for %s" % (
                     name, self.reserved[pin_id]))
